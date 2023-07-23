@@ -1,11 +1,45 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { View, Button } from 'react-native';
+import notifee from '@notifee/react-native';
 
-export default function App() {
+function Screen() {
+  async function onDisplayNotification() {
+    const channelId = await notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel',
+    });
+  
+    // Required for iOS
+    // See https://notifee.app/react-native/docs/ios/permissions
+    await notifee.requestPermission();
+  
+    const notificationId = await notifee.displayNotification({
+      id: '123',
+      title: 'Notification Title',
+      body: 'Main body content of the notification',
+      android: {
+        channelId,
+      },
+    });
+  
+    // Sometime later...
+    await notifee.displayNotification({
+      id: '123',
+      title: 'Updated Notification Title',
+      body: 'Updated main body content of the notification',
+      android: {
+        channelId,
+      },
+    });
+  }
+
+  async function cancel(notificationId) {
+    await notifee.cancelNotification(notificationId);
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View>
+      <Button title="Display Notification" onPress={() => onDisplayNotification()} />
     </View>
   );
 }
